@@ -4,33 +4,25 @@ const handleRes = require("../MiddleWare/handleRes");
 const asyncWrapper = require("../MiddleWare/errorHandling");
 const { FAIL, SUCCESS } = require("../MiddleWare/handleResStatus");
 
+const showItemCart = asyncWrapper(async (req, res, next) => {
+  const { user_id } = req.body;
+  const pool = connectDB();
 
-const showItemCart = asyncWrapper(async (req,res,next)=>{
+  const result = await pool
+    .request()
+    .input("user_id", user_id)
+    .query("select * from cart where user_id=@user_id");
+  const data = result.recordset;
+  if (data.length === 0)
+    return next(generateError("not item on the Cart", 400, FAIL));
 
-
-      const { user_id } = req.body;
-      const pool = connectDB();
-
-      const result = await pool
-        .request()
-        .input("user_id", user_id)
-        .query("select * from cart where user_id=@user_id");
-      const data = result.recordset;
-      if (data.length === 0)
-        return next(generateError("not item on the Cart", 400, FAIL));
-
-
-      handleRes(res, 201, SUCCESS, "cart became empty");
-    
-
-    
-})
+  handleRes(res, 201, SUCCESS, "cart became empty");
+});
 
 const addToCart = asyncWrapper(async (req, res, next) => {
   const pool = await connectDB();
 
   let { product_id, user_id, quantity } = req.body;
-  if (!quantity) quantity = 1;
 
   if (!product_id || !user_id)
     return next(generateError("product and user id required", 400, FAIL));
@@ -46,6 +38,34 @@ const addToCart = asyncWrapper(async (req, res, next) => {
 
   let price = data[0].price;
 
+  const exist = await pool
+    .request()
+    .input("userId", sql.Int, user_id)
+    .input("productId", sql.Int, product_id).query(`
+        SELECT quantity 
+        FROM cart 
+        WHERE user_id = @userId AND product_id = @productId
+    `);
+
+  if (exist.recordset.length > 0) {
+    await pool
+      .request()
+      .input("userId", sql.Int, user_id)
+      .input("productId", sql.Int, product_id)
+      .input("newQty", sql.Int, quantity).query(`
+          UPDATE cart
+          SET quantity = @newQty
+          WHERE user_id = @userId AND product_id = @productId
+      `);
+
+    return handleRes(res, 200, SUCCESS, {
+      message: "Quantity increased",
+      product_id,
+      quantity: newQty,
+      totalPrice: newQty * price,
+    });
+  }
+
   await pool
     .request()
     .input("userId", sql.Int, user_id)
@@ -60,26 +80,63 @@ const addToCart = asyncWrapper(async (req, res, next) => {
 });
 
 const removeFromCart = asyncWrapper(async (req, res, next) => {
-  const { user_id } = req.body;
-  const pool = connectDB();
+
+
+
+  let { product_id, user_id, quantity } = req.body;
+
+  if (!product_id || !user_id)
+    return next(generateError("product and user id required", 400, FAIL));
 
   const result = await pool
     .request()
-    .input("user_id", user_id)
-    .query("select * from cart where user_id=@user_id");
+    .input("productId", product_id)
+    .query(`SELECT price FROM products WHERE id = @productId;`);
+
   const data = result.recordset;
   if (data.length === 0)
-    return next(generateError("not item on the Cart", 400, FAIL));
+    return next(generateError("no product exist with this ID", 400, FAIL));
 
-  await pool.request().input("user_id", user_id).query(`DELETE FROM cart
-                            WHERE user_id = @user_id;
+  let price = data[0].price;
+
+  const exist = await pool
+    .request()
+    .input("userId", sql.Int, user_id)
+    .input("productId", sql.Int, product_id).query(`
+        SELECT quantity 
+        FROM cart 
+        WHERE user_id = @userId AND product_id = @productId
+    `);
+
+  if (exist.recordset.length > 0) {
+    if (quantity<1) {
+       await pool
+         .request()
+         .input("user_id", user_id)
+         .input("product_id", product_id).query(`DELETE FROM cart
+          WHERE user_id = @userId AND product_id = @productId
                                 `);
 
+       handleRes(res, 201, SUCCESS, "this product deleted from cart");
+    }
+    await pool
+      .request()
+      .input("userId", sql.Int, user_id)
+      .input("productId", sql.Int, product_id)
+      .input("newQty", sql.Int, quantity).query(`
+          UPDATE cart
+          SET quantity = @newQty
+          WHERE user_id = @userId AND product_id = @productId
+      `);
 
+    return handleRes(res, 200, SUCCESS, {
+      message: "Quantity decreased",
+      product_id,
+      quantity: newQty,
+      totalPrice: newQty * price,
+    });
+  }
 
-  handleRes(res, 201, SUCCESS, "cart became empty");
-
-                                
 });
 
 module.exports = {

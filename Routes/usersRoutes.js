@@ -4,11 +4,12 @@ const Router = express.Router();
 const verifyToken = require("../MiddleWare/verifyToken");
 const User = require("../Controller/usersController");
 const LogIn = require("../Controller/logIn");
+const LogInWithGoogle= require('../Controller/loginWithGoogle');
 const Register = require("../Controller/register");
 
 Router.route("/").get(User.getAllUsers);
 
-Router.route("/login").get(LogIn);
+Router.route("/login").get(LogInWithGoogle.signInWithGoogle);
 
 Router.route("/register").post(Register);
 

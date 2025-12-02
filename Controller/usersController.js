@@ -87,8 +87,6 @@ const deleteUser = asyncWrapper(async (req, res, next) => {
 module.exports = {
   getAllUsers,
   getSingleUser,
-  register,
-  updateUser,
-  logIn,
-  deleteUser,
+   updateUser,
+   deleteUser,
 };
