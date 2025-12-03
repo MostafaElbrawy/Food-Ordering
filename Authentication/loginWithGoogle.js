@@ -29,6 +29,38 @@ const signInWithGoogle = async (req, res) => {
 
 
 
+const test = asyncWrapper(async(req,res,next)=>{
+
+    const params = client.callbackParams(req);
+    const tokenSet = await client.callback(process.env.GOOGLE_REDIRECT, params);
+
+    const user = tokenSet.claims(); // email, name, picture
+
+    // Check if user exists
+    const pool = await connectDB()
+    const checkUser = await pool.request()
+      .input("email", sql.VarChar, user.email)
+      .query("SELECT * FROM Users WHERE email = @email");
+
+    // If new user → register
+    if (checkUser.recordset.length === 0) {
+      await pool.request()
+        .input("name", sql.VarChar, user.name)
+        .input("email", sql.VarChar, user.email)
+        .query("INSERT INTO Users (name, email) VALUES (@name, @email)");
+    }
+
+    return res.json({
+      message: "Google login success",
+      user
+    });
+
+  });
+  
+  
+  
+
+
 module.exports = {
   setupClient,
   signInWithGoogle,

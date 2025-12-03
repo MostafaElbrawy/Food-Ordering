@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require('cors');
-const {SUCCESS,FAIL,ERROR} = require('./MiddleWare/errorHandling')
+const {ERROR} = require('./MiddleWare/errorHandling')
+const adminRouter = require("./Routes/adminRoutes");
 const productRouter = require("./Routes/productRoutes");
 const usersRouter = require('./Routes/usersRoutes');
+const deliveryRouter = require("./Routes/deliveryRoutes");
 const cartRouter = require("./Routes/cartRoutes");
 const generateError = require("./MiddleWare/generateError");
 require("dotenv").config();
@@ -17,9 +19,11 @@ app.use(cors());
 
 
 
+app.use("/admin", adminRouter);
 app.use("/products", productRouter);
 app.use("/cart", cartRouter);
 app.use('/users',usersRouter);
+app.use('/delivery',deliveryRouter);
 
 
 app.use((req, res, next) => {

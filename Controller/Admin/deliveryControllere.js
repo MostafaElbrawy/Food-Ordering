@@ -147,28 +147,7 @@ const deleteDelivery = asyncWrapper(async (req, res, next) => {
 });
 
 
-const setOrderToDelivery = asyncWrapper(async(req,res,next)=>{
 
-
-
-  const pool = await connectDB();
-
-
-   const result = await pool.request().query(`
-      SELECT *
-      FROM delivery_profiles
-      WHERE status = 'ready'
-      ORDER BY date_ready ASC
-    `);
-
-   if (result.recordset.length === 0)
-     return next(generateError("No delivery ready at the moment", 200, FAIL));
-
-   return handleRes(res, 200, SUCCESS, result.recordset);
-  
-  
-  
-})
 
 
 module.exports = {

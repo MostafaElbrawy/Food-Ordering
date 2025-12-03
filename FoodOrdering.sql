@@ -2,7 +2,7 @@ CREATE TABLE users
 (
   id INT IDENTITY(1,1) PRIMARY KEY ,
   email VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
+  password VARCHAR(255) , ///////////////////////////
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   gender VARCHAR(20) CHECK (gender IN ('male', 'female')),
@@ -38,7 +38,7 @@ CREATE TABLE delivery_profiles
   vehicle_type VARCHAR(50),
   license_plate VARCHAR(50),
   license_number VARCHAR(100),
-  date_arrived SMALLDATETIME , //////////////////////////////
+  date_ready SMALLDATETIME , //////////////////////////////
   status VARCHAR(50) CHECK (status IN ('ready' , 'busy')),
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 )
@@ -71,7 +71,7 @@ CREATE TABLE orders
   CREATE TABLE products
   (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  name VARCHAR(50) NOT NULL,
+  name VARCHAR(50) NOT NULL unique,  //////////////////////////
   price DECIMAL(10,2) NOT NULL,
   description VARCHAR(MAX),
   image VARBINARY(MAX),

@@ -2,9 +2,8 @@ const { connectDB, sql } = require("../MiddleWare/connectToDB");
 const generateError = require("../MiddleWare/generateError");
 const handleRes = require("../MiddleWare/handleRes");
 const { SUCCESS, FAIL } = require("../MiddleWare/handleResStatus");
-
+const asyncWrapper = require('../MiddleWare/errorHandling');
 const showOrders = asyncWrapper(async (req, res, next) => {
-  handleRes(res, 201, SUCCESS, "User deleted successfully");
 
   const { delivery_id } = req.params; // from URL
 
@@ -12,17 +11,32 @@ const showOrders = asyncWrapper(async (req, res, next) => {
 
   const result = await pool.request().input("delivery_id", sql.Int, delivery_id)
     .query(`
-      SELECT top 1
-        id,
-        delivery_id,
-        location,
-        date_placed,
-        sub_total,
-        delivery_fees,
-        total_price,
-      FROM orders
-      WHERE delivery_id = @delivery_id
-      ORDER BY date_placed DESC
+    SELECT 
+        o.id AS order_id,
+        o.delivery_id,
+        o.location,
+        o.date_placed,
+        o.sub_total,
+        o.delivery_fees,
+        o.total_price,
+
+        p.id AS product_id,
+        p.name AS product_name,
+        p.price AS product_price,
+        oi.quantity
+
+    FROM orders o
+    JOIN order_item oi ON o.id = oi.order_id
+    JOIN products p ON oi.product_id = p.id
+
+    WHERE o.id = (
+        SELECT TOP 1 id
+        FROM orders
+        WHERE delivery_id = @delivery_id
+          AND status = 'ready'
+        ORDER BY date_placed DESC
+);
+
     `);
 
   let order = result.recordset;
@@ -58,6 +72,8 @@ const completeOrder = asyncWrapper(async (req, res, next) => {
         id
       FROM orders
       WHERE delivery_id = @delivery_id
+                AND status = 'on_the_way'
+
       ORDER BY date_placed DESC
     `);
 
@@ -70,6 +86,8 @@ const completeOrder = asyncWrapper(async (req, res, next) => {
       SET status = 'delivered'
       WHERE id = @order_id
     `);
+
+
 
   return handleRes(res, 200, SUCCESS, "order completed successfully");
 });

@@ -52,6 +52,18 @@ const addProduct = asyncWrapper(async (req, res, next) => {
   const { name, price, description, category_id } = req.body;
   const pool = await connectDB();
 
+
+   const result = await pool.request().input("name", name).query(`
+                SELECT 
+                    name
+                FROM products 
+                WHERE name = @name
+            `);
+  
+  if(result.recordset.length>0)
+  return next(generateError("sorry but this product already exist", 400, FAIL));
+  
+
   await pool
     .request()
     .input("name", name)
@@ -70,6 +82,20 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
 
   const pool = await connectDB();
 
+
+   const result = await pool.request().input("id", productId).query(`
+                SELECT 
+                    id
+                FROM products 
+                WHERE id = @id
+            `);
+  
+  if(result.recordset.length==0)
+    return next(generateError("this product not exist", 400, FAIL));
+
+  
+  
+  
   let updates = [];
   if (name) updates.push(`name = @name`);
   if (price) updates.push(`price = @price`);

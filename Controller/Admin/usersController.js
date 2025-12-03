@@ -43,7 +43,6 @@ const updateUser = asyncWrapper(async (req, res, next) => {
   if (last_name) updates.push(`last_name = @last_name`);
   if (email) updates.push(`email = @email`);
   if (phone) updates.push(`phone = @phone`);
-
   if (updates.length === 0)
     return next(generateError("No fields to update", 400, FAIL));
 

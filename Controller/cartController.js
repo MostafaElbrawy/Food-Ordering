@@ -5,7 +5,7 @@ const asyncWrapper = require("../MiddleWare/errorHandling");
 const { FAIL, SUCCESS } = require("../MiddleWare/handleResStatus");
 
 const showItemCart = asyncWrapper(async (req, res, next) => {
-  const { user_id } = req.body;
+  const { user_id } = req.params;
   const pool = connectDB();
 
   const result = await pool
@@ -21,8 +21,9 @@ const showItemCart = asyncWrapper(async (req, res, next) => {
 
 const addToCart = asyncWrapper(async (req, res, next) => {
   const pool = await connectDB();
+  const { user_id } = req.params;
 
-  let { product_id, user_id, quantity } = req.body;
+  let { product_id,quantity } = req.body;
 
   if (!product_id || !user_id)
     return next(generateError("product and user id required", 400, FAIL));
@@ -81,9 +82,10 @@ const addToCart = asyncWrapper(async (req, res, next) => {
 
 const removeFromCart = asyncWrapper(async (req, res, next) => {
 
+  const { user_id } = req.params;
 
 
-  let { product_id, user_id, quantity } = req.body;
+  let { product_id,quantity } = req.body;
 
   if (!product_id || !user_id)
     return next(generateError("product and user id required", 400, FAIL));
