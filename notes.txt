@@ -9,7 +9,7 @@ CRUD for delivery
 -- --  --
 Delivery : 
 -- 
-
+add salary to delivery ;
 if ready 
 
 

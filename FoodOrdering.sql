@@ -37,7 +37,8 @@ CREATE TABLE delivery_profiles
   user_id INT PRIMARY KEY ,
   vehicle_type VARCHAR(50),
   license_plate VARCHAR(50),
-  license_number VARCHAR(100), 
+  license_number VARCHAR(100),
+  date_arrived SMALLDATETIME , //////////////////////////////
   status VARCHAR(50) CHECK (status IN ('ready' , 'busy')),
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 )
@@ -53,7 +54,7 @@ CREATE TABLE orders
   sub_total DECIMAL(10,2) NOT NULL,
   total_price AS (sub_total + delivery_fees) PERSISTED,
   delivery_fees DECIMAL(10,2) NOT NULL,
-  status VARCHAR(25) NOT NULL CHECK (status IN ('preparing','ready','on_the_way','delivered')),
+  status VARCHAR(25) NOT NULL CHECK (status IN ('preparing','ready','on_the_way','delivered')),///////////////////
   rating INT CHECK (rating BETWEEN 1 AND 5)
   --payment_type VARCHAR(25) CHECK (payment_type IN ('cash','credit_card','wallet')),
   FOREIGN KEY(user_id) REFERENCES users(id),

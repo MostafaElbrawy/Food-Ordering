@@ -1,8 +1,8 @@
-const { connectDB, sql } = require("../MiddleWare/connectToDB.js");
-const generateError = require("../MiddleWare/generateError.js");
-const handleRes = require("../MiddleWare/handleRes.js");
-const { SUCCESS, FAIL } = require("../MiddleWare/handleResStatus.js");
-const asyncWrapper = require("../MiddleWare/errorHandling.js");
+const { connectDB, sql } = require("../../MiddleWare/connectToDB.js");
+const generateError = require("../../MiddleWare/generateError.js");
+const handleRes = require("../../MiddleWare/handleRes.js");
+const { SUCCESS, FAIL } = require("../../MiddleWare/handleResStatus.js");
+const asyncWrapper = require("../../MiddleWare/errorHandling.js");
 
 const getAllProducts = asyncWrapper(async (req, res, next) => {
   const pool = await connectDB();

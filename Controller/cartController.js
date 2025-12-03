@@ -16,7 +16,7 @@ const showItemCart = asyncWrapper(async (req, res, next) => {
   if (data.length === 0)
     return next(generateError("not item on the Cart", 400, FAIL));
 
-  handleRes(res, 201, SUCCESS, "cart became empty");
+  handleRes(res, 200, SUCCESS,data);
 });
 
 const addToCart = asyncWrapper(async (req, res, next) => {

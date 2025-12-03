@@ -1,10 +1,10 @@
-const { connectDB, sql } = require("../MiddleWare/connectToDB");
-const generateError = require("../MiddleWare/generateError");
-const handleRes = require("../MiddleWare/handleRes");
-const asyncWrapper = require("../MiddleWare/errorHandling");
-const { SUCCESS, FAIL } = require("../MiddleWare/handleResStatus.js");
+const { connectDB, sql } = require("../../MiddleWare/connectToDB.js");
+const generateError = require("../../MiddleWare/generateError.js");
+const handleRes = require("../../MiddleWare/handleRes.js");
+const asyncWrapper = require("../../MiddleWare/errorHandling.js");
+const { SUCCESS, FAIL } = require("../../MiddleWare/handleResStatus.js");
 const bcrypt = require("bcryptjs");
-const generateJWT = require("../MiddleWare/generateJWT");
+const generateJWT = require("../../MiddleWare/generateJWT.js");
 
 const getAllUsers = asyncWrapper(async (req, res, next) => {
   const pool = await connectDB();
